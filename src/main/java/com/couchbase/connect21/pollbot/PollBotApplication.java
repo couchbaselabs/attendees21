@@ -138,7 +138,7 @@ public class PollBotApplication implements CommandLineRunner {
 				System.err.println("Could not get the current poll");
 			}
 		}
-		System.out.println("============= all users from "+lang+" has finished");
+		System.out.println("============= all users from the "+lang+" team have finished answering the active poll");
 	}
 
 	int random(int max, int min){
@@ -198,11 +198,11 @@ public class PollBotApplication implements CommandLineRunner {
 					if (jsonObj.has("id")) {
 						usersList.get(targetLang).add(jsonObj.getString("id"));
 					} else {
-						System.err.println("User with team" + targetLang + " could not be created");
+						System.err.println("User with team " + targetLang + " could not be created " +response.body());
 					}
 
 				} catch (Exception e) {
-					System.err.println("User with team" + targetLang + " could not be created");
+					System.err.println("User with team " + targetLang + " could not be created "+e.getMessage());
 				}
 			}
 		}
