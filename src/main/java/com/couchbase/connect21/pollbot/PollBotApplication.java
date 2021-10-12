@@ -97,7 +97,12 @@ public class PollBotApplication implements CommandLineRunner {
 
 		for(Map.Entry<String, List<String>> entry: users.entrySet()) {
 			int percentRight = Integer.parseInt(answers[Arrays.asList(langs).indexOf(entry.getKey())]);
-			int totalUserAnswers =  (int)  ((entry.getValue().size() * percentRight)/100);
+
+			if(percentRight > 20 && percentRight <= 80) {
+				percentRight = percentRight + random(-20, 20);
+			}
+
+			int totalUserAnswers = ((entry.getValue().size() * percentRight)/100);
 
 			executor.submit(() -> answerPool(entry.getKey(), params.get(URL), users.get(entry.getKey()), totalUserAnswers, correct,  wrong));
 
@@ -302,7 +307,7 @@ public class PollBotApplication implements CommandLineRunner {
 		System.out.println("--url			String				target BACKEND url (default:localhost:8080)");
 		System.out.println("--languages     String with comma	languages separated by comma (default: Python,Javascript,Java,C++,C#,GO )");
 		System.out.println("--users     	int with commas		the number of users per language (default: 11,35,30,5,13,4 )");
-		System.out.println("--answers		int with commas		the number of correct answers per team (default: 50,50,50,50,50,50 )");
+		System.out.println("--answers		int with commas		the % number of correct answers per team (default: 50,50,50,50,50,50 )");
 		System.out.println("--reset			boolean				resets the database (default:false)");
 		System.out.println("--skipUsers		boolean				skipUserCreation (default:false)");
 	}
