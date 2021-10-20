@@ -16,9 +16,18 @@ public class Poll {
   private int award;
   private String question;
   private List<Answer> answers;
+  private boolean active;
 
   public Poll() {
 
+  }
+
+  public boolean isActive() {
+    return active;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
   }
 
   public Poll(String question) {
@@ -116,6 +125,7 @@ public class Poll {
     public void setCorrect(boolean correct) {
       this.correct = correct;
     }
+
 
   }
 }

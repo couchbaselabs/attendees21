@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 public class PollBotApplication implements CommandLineRunner {
 
+	//--url https://api.basebucks.app --users 10,20,30,300,15,20
 	public static final String URL = "--url";
 	public static final String LANGUAGES = "--languages";
 	public static final String USERS = "--users";
@@ -70,14 +71,14 @@ public class PollBotApplication implements CommandLineRunner {
 		while (true) {
 
 			Poll poll = getActivePoll(params);
-			if( poll != null && !poll.getId().equals(lastQuestion) ) {
+			if( poll != null && poll.isUnlocked() && !poll.getId().equals(lastQuestion) ) {
 				System.out.println("======================================");
 				System.out.println("=====Answering New Question with Threads======");
 				System.out.println("======================================");
 				lastQuestion = poll.getId();
 				answerActivePoll(users, params, poll);
 			} else {
-				System.out.println("Waiting for question to be unlocked.");
+				System.out.println("Waiting for question to be unlocked. isUnlocked = ");
 				Thread.sleep(2000);
 			}
 		}
@@ -104,12 +105,12 @@ public class PollBotApplication implements CommandLineRunner {
 
 			int totalUserAnswers = ((entry.getValue().size() * percentRight)/100);
 
-			executor.submit(() -> answerPool(entry.getKey(), params.get(URL), users.get(entry.getKey()), totalUserAnswers, correct,  wrong));
+			executor.submit(() -> answerPool(entry.getKey(), params.get(URL), users.get(entry.getKey()), totalUserAnswers, correct,  wrong, poll.getId()));
 
 		}
 	}
 
-	private void answerPool(String lang, String url, List<String> userIds, int totalCorrect, List<Poll.Answer> correct, List<Poll.Answer> wrong) {
+	private void answerPool(String lang, String url, List<String> userIds, int totalCorrect, List<Poll.Answer> correct, List<Poll.Answer> wrong, String pollId) {
 
 		for(int i = 0; i<userIds.size();i++){
 			String answer = "";
@@ -132,7 +133,7 @@ public class PollBotApplication implements CommandLineRunner {
 			try {
 				HttpClient client = HttpClient.newHttpClient();
 				HttpRequest request = HttpRequest.newBuilder()
-						.uri(URI.create(url+ "/demo/answerPool?userId="+userIds.get(i)+"&answer="+ URLEncoder.encode(answer, StandardCharsets.UTF_8.toString())))
+						.uri(URI.create(url+ "/demo/answerPool?userId="+userIds.get(i)+"&pool="+pollId+"&answer="+ URLEncoder.encode(answer, StandardCharsets.UTF_8.toString())))
 						.headers("Content-Type", "application/json;charset=UTF-8")
 						.POST(HttpRequest.BodyPublishers.ofString("{}"))
 						.build();
@@ -162,7 +163,13 @@ public class PollBotApplication implements CommandLineRunner {
 					.build();
 			HttpResponse<String> response = client.send(request,
 					HttpResponse.BodyHandlers.ofString());
+
+			if(response.statusCode() == 404){
+				return null;
+			}
 			ObjectMapper mapper = new ObjectMapper();
+
+			System.out.println(response.body());
 			return mapper.readValue(response.body(), Poll.class);
 		} catch (Exception e) {
 			System.err.println("Could not get the current poll");
