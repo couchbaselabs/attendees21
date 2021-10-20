@@ -2,8 +2,8 @@ package com.couchbase.connect21.pollbot;
 
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
+import java.util.List;import java.util.Objects;
 
 
 public class Poll {
@@ -11,6 +11,7 @@ public class Poll {
   private String id;
   private boolean unlocked;
   private long unlockTime;
+  private long lockTime;
   private boolean scored;
   private int index;
   private int award;
@@ -56,8 +57,16 @@ public class Poll {
     }
   }
 
-  public long getUnlockTime() {
+  public void setUnlockTime(Long unlockTime) {
+    this.unlockTime = unlockTime;
+  }
+
+  public Long getUnlockTime() {
     return unlockTime;
+  }
+
+  public void setLockTime(Long lockTime) {
+    this.lockTime = lockTime;
   }
 
   public int getIndex() {
